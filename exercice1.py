@@ -12,23 +12,17 @@ canvas.pack(anchor=tk.CENTER, expand=True)
 
 img = ImageTk.PhotoImage(Image.open("./broken.png"))
 
-temp_dic=0
-def getTag(event:Event):
-    x = event.x
-    y = event.y
-    temp_dic = dict[f"{x}/{y}"]
-
-
 def suivre(event:Event):
     x = event.x
     y = event.y
-    canvas.moveto(temp_dic[f"{x}/{y}"], x-32, y-32)
+    focused_tag = canvas.find_closest(x, y)[0]
+    print(focused_tag)
+    canvas.moveto(focused_tag, x-32, y-32)
     return
 
 dict = {}
 def apparition():
     dict[f"{350}/{350}"] = canvas.create_image(350, 350, image=img)
-    canvas.tag_bind(dict[f"{350}/{350}"], "<Button-1>", getTag)
     canvas.tag_bind(dict[f"{350}/{350}"], "<B1-Motion>", suivre)
     
 
