@@ -1,4 +1,4 @@
-from tkinter import (Tk, Canvas, N, W, E, S, Event, Button, Frame, RAISED)
+from tkinter import (Tk, Canvas, N, W, E, S, Event, Button, Frame, RAISED, PhotoImage)
 from PIL import Image, ImageTk
 from os import getcwd
 
@@ -17,9 +17,9 @@ class App(Tk):
         self.canva = Canvas(self.frame, height=self.height-100, width=self.width-120, bg=self.canva_bg)
 
         #définition des images
-        self.img_pc = ImageTk.PhotoImage(Image.open(absolute_path("./pc.png")))
-        self.img_router = ImageTk.PhotoImage(Image.open(absolute_path("./router.png")))
-        self.img_switch = ImageTk.PhotoImage(Image.open(absolute_path("./switch.png")))
+        self.img_pc = ImageTk.PhotoImage(Image.open("pc.png"))
+        self.img_router = ImageTk.PhotoImage(Image.open("router.png"))
+        self.img_switch = ImageTk.PhotoImage(Image.open("switch.png"))
 
 
         self.button_pc = Button(self.frame,relief=RAISED,image=self.img_pc, command=lambda: self.spawn(self.img_pc))
@@ -51,27 +51,12 @@ class App(Tk):
     def run(self):
         self.geometry(f'{self.width}x{self.height}')
         self.title(self.name)
+        self.iconphoto(True,PhotoImage(file="pc.png"))
         
         try:
             self.mainloop()
         except KeyboardInterrupt:
             self.destroy()
 
-def absolute_path(relative_path: str) -> str:
-  """A simple utility function to transform relative to absolute path.
-
-  Args:
-      relative_path (str): The relative path we're trying to get.
-
-  Returns:
-      str: The absolute path of our target.
-  """
-
-  absolute_cwd = getcwd()
-  result = absolute_cwd + "/" + relative_path
-
-  return result
-
-
-t = App("Sysco",800,800)
+t = App("NDT - Network Drawing Thing",800,800)
 t.run()
