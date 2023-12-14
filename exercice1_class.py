@@ -1,4 +1,4 @@
-from tkinter import (Tk, Canvas, N, W, E, S, Event, Button, Frame, PhotoImage, Menu, Label, LabelFrame)
+from tkinter import (Tk, Canvas, N, W, E, S, Event, Button, Frame, PhotoImage, Menu, simpledialog)
 from PIL import Image, ImageTk
 
 class App(Tk):
@@ -17,6 +17,7 @@ class App(Tk):
         self.focused_tag=None
         self.toggle_remove_flag=False
         self.equipments={}
+        self.mouse_coords=(0,0)
         
         #dans la fenêtre principale
         self.frame = Frame(self)
@@ -24,7 +25,7 @@ class App(Tk):
 
         #définition du menu
         self.context_menu = Menu(self.canva, tearoff=0)
-        self.context_menu.add_command(label = "Modifier le nom")#, command = lambda:self.hey("hi"))
+        self.context_menu.add_command(label = "Modifier le nom", command = lambda: self.changeName())
         #self.context_menu.add_separator()
         self.context_menu.add_command(label = "Modifier l'icône")#, command = lambda:self.hey("hello"))
 
@@ -51,13 +52,19 @@ class App(Tk):
         self.img_remove = ImageTk.PhotoImage(Image.open("cross.png"))
         self.button_remove = Button(self.frame,image=self.img_remove, command= lambda: self.toggle_remove() ).grid(row=0,column=0)
 
+        #bind event
+        self.bind("<Motion>",self.update_mouse)
+        
+    def update_mouse(self, event: Event):
+        self.mouse_coords = (event.x,event.y)
+
 
     #apparition de l'élément selon le bouton sélectionné, héritant donc de l'image adéquat
     def spawn(self,image):
         new_equipment = Equipment("Équipement",image,self.middle_width,self.middle_height,self.follow,self.menu,self.canva)
         self.equipments[new_equipment.get_identifier()] = new_equipment
 
-    #suivre la souris au déplacement + suppression si le flag renove est True
+    #suivre la souris au déplacement + suppression si le flag remove est True
     def follow(self, event:Event, is_clicked:bool=False):
         x = event.x
         y = event.y
@@ -96,6 +103,11 @@ class App(Tk):
         finally: 
             self.context_menu.grab_release() 
 
+    def changeName(self):
+        x,y = self.mouse_coords
+        element=self.canva.find_closest(x,y)[0]
+        self.equipments[element].set_name(simpledialog.askstring("Modifier le nom", "Modifier le nom de l'équipement"))
+
 class Equipment:
     def __init__(self,name,image,middle_width,middle_height,follow_action,menu_action,canvas:Canvas):
         self.name = name
@@ -120,6 +132,10 @@ class Equipment:
     def delete(self):
         self.canva.delete(self.identifier)
         self.canva.delete(self.label)
+    
+    def set_name(self, named):
+        self.name = named
+        self.canva.itemconfigure(self.label,text=self.name)
 
 
 t = App("NDT - Network Drawing Thing",800,800)
