@@ -1,4 +1,4 @@
-from tkinter import (Tk, Canvas, N, W, E, S, Event, Button, Frame, PhotoImage, Menu)
+from tkinter import (Tk, Canvas, N, W, E, S, Event, Button, Frame, PhotoImage, Menu, Label, LabelFrame)
 from PIL import Image, ImageTk
 
 class App(Tk):
@@ -16,6 +16,7 @@ class App(Tk):
         self.middle_height = height//2
         self.focused_tag=None
         self.toggle_remove_flag=False
+        self.equipments={}
         
         #dans la fenêtre principale
         self.frame = Frame(self)
@@ -24,7 +25,7 @@ class App(Tk):
         #définition du menu
         self.context_menu = Menu(self.canva, tearoff=0)
         self.context_menu.add_command(label = "Modifier le nom")#, command = lambda:self.hey("hi"))
-        self.context_menu.add_separator() 
+        #self.context_menu.add_separator()
         self.context_menu.add_command(label = "Modifier l'icône")#, command = lambda:self.hey("hello"))
 
         #définition des images
@@ -53,11 +54,8 @@ class App(Tk):
 
     #apparition de l'élément selon le bouton sélectionné, héritant donc de l'image adéquat
     def spawn(self,image):
-        new_img = self.canva.create_image(350, 350, image=image)
-
-        self.canva.tag_bind(new_img, "<Button-1>", lambda event : self.follow(event,True))
-        self.canva.tag_bind(new_img, "<B1-Motion>", self.follow)
-        self.canva.tag_bind(new_img, "<Button-3>", self.menu)
+        new_equipment = Equipment("Équipement",image,self.middle_width,self.middle_height,self.follow,self.menu,self.canva)
+        self.equipments[new_equipment.get_identifier()] = new_equipment
 
     #suivre la souris au déplacement + suppression si le flag renove est True
     def follow(self, event:Event, is_clicked:bool=False):
@@ -66,9 +64,9 @@ class App(Tk):
         if is_clicked:
             self.focused_tag = self.canva.find_closest(x,y)[0]
             if self.toggle_remove_flag:
-                self.canva.delete(self.focused_tag)
+                self.equipments[self.focused_tag].delete()
             self.canva.tag_raise(self.focused_tag)
-        self.canva.moveto(self.focused_tag, x-24, y-24)
+        self.equipments[self.focused_tag].moveto(x-24,y-24) #-24 pour centrer l'image au curseur de la souris
 
     #lancer programme
     def run(self):
@@ -97,6 +95,32 @@ class App(Tk):
             self.context_menu.tk_popup(x,y)
         finally: 
             self.context_menu.grab_release() 
+
+class Equipment:
+    def __init__(self,name,image,middle_width,middle_height,follow_action,menu_action,canvas:Canvas):
+        self.name = name
+        self.canva = canvas
+        self.identifier = self.canva.create_image(middle_width,middle_height, image=image)
+        self.label = self.canva.create_text(middle_width+12, middle_height-32, text=self.name)
+
+        self.canva.tag_bind(self.identifier, "<Button-1>", lambda event : follow_action(event,True))
+        self.canva.tag_bind(self.identifier, "<B1-Motion>", follow_action)
+        self.canva.tag_bind(self.identifier, "<Button-3>", menu_action)
+
+        self.canva.tag_lower(self.label)
+        self.canva.tag_raise(self.identifier)
+        
+    def moveto(self,x,y):
+        self.canva.moveto(self.identifier, x, y)
+        self.canva.moveto(self.label, x, y-18)
+
+    def get_identifier(self):
+        return self.identifier
+    
+    def delete(self):
+        self.canva.delete(self.identifier)
+        self.canva.delete(self.label)
+
 
 t = App("NDT - Network Drawing Thing",800,800)
 t.run()
