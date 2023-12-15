@@ -1,4 +1,4 @@
-from tkinter import (Tk, Canvas, N, W, E, S, Event, Button, Frame, PhotoImage, Menu, simpledialog)
+from tkinter import (Tk, Canvas, N, W, E, S, Event, Button, Frame, PhotoImage, Menu, simpledialog, Label, LabelFrame)
 from PIL import Image, ImageTk
 
 class App(Tk):
@@ -21,13 +21,13 @@ class App(Tk):
         
         #dans la fenêtre principale
         self.frame = Frame(self)
-        self.canva = Canvas(self.frame, height=self.height-100, width=self.width-120, bg=self.canva_bg)
+        self.canva = Canvas(self.frame, height=self.height-64, width=self.width, bg=self.canva_bg)
 
         #définition du menu
         self.context_menu = Menu(self.canva, tearoff=0)
         self.context_menu.add_command(label = "Modifier le nom", command = lambda: self.changeName())
         #self.context_menu.add_separator()
-        self.context_menu.add_command(label = "Modifier l'icône")#, command = lambda:self.hey("hello"))
+        self.context_menu.add_command(label = "Modifier l'icône (non fonctionnel, placeholder)")#, command = lambda:self.hey("hello"))
 
         #définition des images
         self.img_pc = ImageTk.PhotoImage(Image.open("pc.png"))
@@ -40,18 +40,17 @@ class App(Tk):
         self.button_switch = Button(self.frame,image=self.img_switch, command=lambda: self.spawn(self.img_switch))
 
         #définition de la grid
-        self.canva.grid(row=0, column=1,sticky=self.tk_sticky_all,columnspan=3)
         self.frame.grid(row=0, column=0,sticky=self.tk_sticky_all)
+        self.canva.grid(row=0, column=0,sticky=self.tk_sticky_all,columnspan=5)
         
-        #affichage des boutons par boucle for (f is for flemme)
+        #affichage des boutons par boucle for
         x,y = 1,1
         for button in [self.button_pc, self.button_client, self.button_switch]:
             button.grid(row=x, column=y)
             y+=1
         
         self.img_remove = ImageTk.PhotoImage(Image.open("cross.png"))
-        self.button_remove = Button(self.frame,image=self.img_remove, command= lambda: self.toggle_remove() ).grid(row=0,column=0)
-
+        self.button_remove = Button(self.frame,image=self.img_remove, command= lambda: self.toggle_remove() ).grid(row=1)
         #bind event
         self.bind("<Motion>",self.update_mouse)
         
@@ -80,6 +79,7 @@ class App(Tk):
         self.geometry(f'{self.width}x{self.height}')
         self.title(self.name)
         self.iconphoto(True,PhotoImage(file="pc.png"))
+        self.resizable(width=False, height=False)
 
         try:
             self.mainloop()
@@ -138,5 +138,5 @@ class Equipment:
         self.canva.itemconfigure(self.label,text=self.name)
 
 
-t = App("NDT - Network Drawing Thing",800,800)
+t = App("NDT - Network Drawing Thing",1280,768)
 t.run()
